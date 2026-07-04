@@ -31,10 +31,10 @@ function staircase(n) {
     return parts;
 }
 
-function square(n) {
+function rectangle(rows, cols) {
     let parts = [];
-    for (let i = 0; i < n; i++) {
-        parts.push(n);
+    for (let i = 0; i < rows; i++) {
+        parts.push(cols);
     }
     return parts;
 }
@@ -489,6 +489,11 @@ class GameUI {
         if (generatePartitionBtn) {
             generatePartitionBtn.addEventListener('click', () => this.generatePartition());
         }
+        const partitionTypeSelect = document.getElementById('partition-type-select');
+        if (partitionTypeSelect) {
+            partitionTypeSelect.addEventListener('change', () => this.updatePartitionUI());
+            this.updatePartitionUI();
+        }
         
         // Difficulty slider
         if (this.difficultySlider) {
@@ -902,20 +907,29 @@ class GameUI {
     }
 
     // Partition generation
+    updatePartitionUI() {
+        const type = document.getElementById('partition-type-select').value;
+        const isRect = type === 'rectangle';
+        const colsBox = document.getElementById('partition-cols-box');
+        const label = document.getElementById('partition-number-label');
+        if (colsBox) colsBox.style.display = isRect ? '' : 'none';
+        if (label) label.textContent = type === 'random' ? 'partitions' : isRect ? 'rows' : type === 'staircase' ? 'rows' : 'size';
+    }
+
     generatePartition() {
         const typeSelect = document.getElementById('partition-type-select');
         const numberInput = document.getElementById('partition-number-input');
-        
+
         const type = typeSelect.value;
         const n = parseInt(numberInput.value);
-        
+
         if (isNaN(n) || n <= 0 || n > 100) {
             alert('Please enter a number between 1 and 100');
             return;
         }
-        
+
         let partition;
-        
+
         switch (type) {
             case 'random':
                 partition = randomPartition(n);
@@ -923,10 +937,15 @@ class GameUI {
             case 'staircase':
                 partition = staircase(n);
                 break;
-            case 'square':
-                const size = Math.floor(Math.sqrt(n));
-                partition = square(size);
+            case 'rectangle': {
+                const cols = parseInt(document.getElementById('partition-cols-input').value, 10);
+                if (isNaN(cols) || cols <= 0 || cols > 100) {
+                    alert('Please enter a number of columns between 1 and 100');
+                    return;
+                }
+                partition = rectangle(n, cols);
                 break;
+            }
             case 'hook':
                 partition = hook(n);
                 break;
@@ -934,7 +953,7 @@ class GameUI {
                 alert('Partition type not implemented yet');
                 return;
         }
-        
+
         this.rowsInput.value = partition.join(' ');
     }
 

@@ -165,11 +165,11 @@ function staircase(n) {
     return parts;
 }
 
-function square(n) {
+function rectangle(rows, cols) {
     let parts = [];
-    let t = n;
+    let t = rows;
     while (t >= 1) {
-        parts.push(n);
+        parts.push(cols);
         t = t - 1;
     }
     return parts;
@@ -257,6 +257,9 @@ class SatoWelterGui {
         this.rowsInput = document.getElementById('rows-input');
         this.partitionTypeSelect = document.getElementById('partition-type-select');
         this.partitionNumberInput = document.getElementById('partition-number-input');
+        this.partitionNumberLabel = document.getElementById('partition-number-label');
+        this.partitionColsInput = document.getElementById('partition-cols-input');
+        this.partitionColsBox = document.getElementById('partition-cols-box');
         this.generatePartitionBtn = document.getElementById('generate-partition-btn');
         this.aiSelect = document.getElementById('ai-select');
         this.difficultySlider = document.getElementById('difficulty-slider');
@@ -285,6 +288,10 @@ class SatoWelterGui {
         }
         if (this.generatePartitionBtn) {
             this.generatePartitionBtn.addEventListener('click', () => this.generatePartition());
+        }
+        if (this.partitionTypeSelect) {
+            this.partitionTypeSelect.addEventListener('change', () => this.updatePartitionUI());
+            this.updatePartitionUI();
         }
         if (this.downloadBtnModal) {
             this.downloadBtnModal.addEventListener('click', () => { SoundManager.play('click'); this.downloadGame(); });
@@ -513,22 +520,36 @@ class SatoWelterGui {
         const difficulty = this.difficultySlider.value;
         this.difficultyLabel.textContent = `AI Difficulty: ${difficulty}`;
     }
+    updatePartitionUI() {
+        const type = this.partitionTypeSelect.value;
+        const isRect = type === 'rectangle';
+        if (this.partitionColsBox) this.partitionColsBox.style.display = isRect ? '' : 'none';
+        if (this.partitionNumberLabel) {
+            this.partitionNumberLabel.textContent = type === 'random' ? 'partitions' : isRect ? 'rows' : type === 'staircase' ? 'rows' : 'size';
+        }
+    }
+
     generatePartition() {
         const partitionType = this.partitionTypeSelect.value;
         const n = parseInt(this.partitionNumberInput.value, 10);
-        
+
         if (isNaN(n) || n <= 0 || n > 200) {
             alert("Please enter a positive number less than or equal to 200.");
             return;
         }
-        
+
         let partition;
         if (partitionType === 'random') {
             partition = randomPartition(n);
         } else if (partitionType === 'staircase') {
             partition = staircase(n);
-        } else if (partitionType === 'square') {
-            partition = square(n);
+        } else if (partitionType === 'rectangle') {
+            const cols = parseInt(this.partitionColsInput.value, 10);
+            if (isNaN(cols) || cols <= 0 || cols > 200) {
+                alert("Please enter a positive number of columns less than or equal to 200.");
+                return;
+            }
+            partition = rectangle(n, cols);
         } else if (partitionType === 'hook') {
             partition = hook(n);
         }

@@ -234,11 +234,11 @@ function staircase(n) {
   return parts;
 }
 
-function square(n) {
+function rectangle(rows, cols) {
   let parts = [];
-  let t = n;
+  let t = rows;
   while (t >= 1) {
-    parts.push(n);
+    parts.push(cols);
     t = t - 1;
   }
   return parts;
@@ -372,6 +372,9 @@ class ProCornerGui {
     this.partitionNumberInput = document.getElementById(
       "partition-number-input"
     );
+    this.partitionNumberLabel = document.getElementById("partition-number-label");
+    this.partitionColsInput = document.getElementById("partition-cols-input");
+    this.partitionColsBox = document.getElementById("partition-cols-box");
     this.generatePartitionBtn = document.getElementById(
       "generate-partition-btn"
     );
@@ -447,6 +450,10 @@ class ProCornerGui {
         this.generatePartition()
       );
     }
+    if (this.partitionTypeSelect) {
+      this.partitionTypeSelect.addEventListener("change", () => this.updatePartitionUI());
+      this.updatePartitionUI();
+    }
 
     if (this.multiplayerBtn) {
       this.multiplayerBtn.addEventListener('click', () => {
@@ -487,7 +494,7 @@ class ProCornerGui {
         let p;
         if (type === 'random') p = randomPartition(n);
         else if (type === 'staircase') p = staircase(n);
-        else if (type === 'square') p = square(n);
+        else if (type === 'square') p = rectangle(n, n);
         else if (type === 'hook') p = hook(n);
         this.multiplayerRowsInput.value = p.join(' ');
       });
@@ -1190,6 +1197,15 @@ class ProCornerGui {
     }
     this.difficultyLabel.textContent = difficulty;
   }
+  updatePartitionUI() {
+    const type = this.partitionTypeSelect.value;
+    const isRect = type === "rectangle";
+    if (this.partitionColsBox) this.partitionColsBox.style.display = isRect ? "" : "none";
+    if (this.partitionNumberLabel) {
+      this.partitionNumberLabel.textContent = type === "random" ? "partitions" : isRect ? "rows" : type === "staircase" ? "rows" : "size";
+    }
+  }
+
   generatePartition() {
     const partitionType = this.partitionTypeSelect.value;
     const n = parseInt(this.partitionNumberInput.value, 10);
@@ -1202,8 +1218,13 @@ class ProCornerGui {
       partition = randomPartition(n);
     } else if (partitionType === "staircase") {
       partition = staircase(n);
-    } else if (partitionType === "square") {
-      partition = square(n);
+    } else if (partitionType === "rectangle") {
+      const cols = parseInt(this.partitionColsInput.value, 10);
+      if (isNaN(cols) || cols <= 0) {
+        alert("Please enter a positive number of columns for partition generation.");
+        return;
+      }
+      partition = rectangle(n, cols);
     } else if (partitionType === "hook") {
       partition = hook(n);
     }

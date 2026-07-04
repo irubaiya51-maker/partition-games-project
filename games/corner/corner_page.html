@@ -262,20 +262,24 @@
 
         <hr />
 
-        <label for="partition-type-select">generate a partition:</label>
-        <div class="input-group">
-          <select id="partition-type-select" class="partition-type-dropdown">
+        <label for="partition-type-select">Shape</label>
+        <select id="partition-type-select" class="partition-type-dropdown">
             <option value="random">random</option>
             <option value="staircase">staircase</option>
-            <option value="square">square</option>
+            <option value="rectangle">rectangle</option>
             <option value="hook">hook</option>
-          </select>
-          <input
-            type="number"
-            id="partition-number-input"
-            placeholder="e.g., 25"
-          />
-          <button id="generate-partition-btn">generate</button>
+        </select>
+        <div class="partition-dims" id="partition-dims">
+          <div class="dim-box">
+            <label id="partition-number-label" for="partition-number-input">partitions</label>
+            <input type="number" id="partition-number-input" placeholder="e.g., 25">
+          </div>
+          <div class="dim-box" id="partition-cols-box" style="display:none">
+            <label for="partition-cols-input">columns</label>
+            <input type="number" id="partition-cols-input" placeholder="e.g., 6">
+          </div>
+        </div>
+        <button id="generate-partition-btn" class="secondary-button">generate</button>
         </div>
 
         <hr />
@@ -363,6 +367,7 @@
             </button>
         </div>
         <button id="play-again-btn" class="modal-btn">play again</button>
+        <a class="secondary-button" href="../../index.html#games" style="display:block;text-align:center;margin-top:10px;text-decoration:none">&larr; back to games</a>
       </div>
     </div>
 

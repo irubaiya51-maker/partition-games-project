@@ -96,18 +96,18 @@ function staircase(n) {
   return parts; // Sort descending like other games
 }
 
-function square(n)
+function rectangle(rows, cols)
 {
-    let parts = []; 
-    let t = n; 
+    let parts = [];
+    let t = rows;
 
     while (t >= 1)
     {
-        parts.push(n); 
-        t = t - 1; 
+        parts.push(cols);
+        t = t - 1;
     }
 
-    return parts; 
+    return parts;
 }
 
 function hook(n)
@@ -271,6 +271,9 @@ class ProLCTRGui {
         this.rowsInput = document.getElementById('rows-input');
         this.partitionTypeSelect = document.getElementById('partition-type-select');
         this.partitionNumberInput = document.getElementById('partition-number-input');
+        this.partitionNumberLabel = document.getElementById('partition-number-label');
+        this.partitionColsInput = document.getElementById('partition-cols-input');
+        this.partitionColsBox = document.getElementById('partition-cols-box');
         this.generatePartitionBtn = document.getElementById('generate-partition-btn');
         this.aiSelect = document.getElementById('ai-select');
         this.difficultySlider = document.getElementById('difficulty-slider');
@@ -299,7 +302,9 @@ class ProLCTRGui {
             this.helpBtnModal.addEventListener('mouseenter', () => this.showHelp());
             this.helpBtnModal.addEventListener('mouseleave', () => this.hideHelp());
         }
-        this.generatePartitionBtn.addEventListener('click', () => this.generatePartition());  
+        this.generatePartitionBtn.addEventListener('click', () => this.generatePartition());
+        this.partitionTypeSelect.addEventListener('change', () => this.updatePartitionUI());
+        this.updatePartitionUI();
         const downloadBtnModal = document.getElementById('download-btn-modal');
         if (downloadBtnModal) {
             downloadBtnModal.addEventListener('click', () => { SoundManager.play('click'); this.downloadGame(); });
@@ -575,19 +580,28 @@ class ProLCTRGui {
         }, 300);
     }
 
+    updatePartitionUI() {
+        const type = this.partitionTypeSelect.value;
+        const isRect = type === 'rectangle';
+        if (this.partitionColsBox) this.partitionColsBox.style.display = isRect ? '' : 'none';
+        if (this.partitionNumberLabel) {
+            this.partitionNumberLabel.textContent = type === 'random' ? 'partitions' : isRect ? 'rows' : type === 'staircase' ? 'rows' : 'size';
+        }
+    }
+
     generatePartition() {
         SoundManager.play('click');
-        
+
         const partitionType = this.partitionTypeSelect.value;
         const n = parseInt(this.partitionNumberInput.value, 10);
-        
+
         if (isNaN(n) || n <= 0 || n > 200) {
             alert("Please enter a positive number less than or equal to 200.");
             return;
         }
-        
+
         let partition;
-        
+
         switch (partitionType) {
             case 'random':
                 partition = randomPartition(n);
@@ -595,23 +609,25 @@ class ProLCTRGui {
             case 'staircase':
                 partition = staircase(n);
                 break;
-            case 'rectangle':
-                // Placeholder - will be implemented later
-                alert("Rectangle partitions are not yet implemented.");
-                return;
-            case 'square':
-                partition = square(n);
+            case 'rectangle': {
+                const cols = parseInt(this.partitionColsInput.value, 10);
+                if (isNaN(cols) || cols <= 0 || cols > 200) {
+                    alert("Please enter a positive number of columns less than or equal to 200.");
+                    return;
+                }
+                partition = rectangle(n, cols);
                 break;
+            }
             case 'hook':
-                partition = hook(n); 
-                break; 
+                partition = hook(n);
+                break;
             default:
                 alert("Unknown partition type selected.");
                 return;
         }
-        
+
         this.rowsInput.value = partition.join(' ');
-    }  
+    }
 
         
 

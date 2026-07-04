@@ -283,7 +283,7 @@
             var btn = el("a", "nav-button pg-quit-btn",
                 '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px"><path d="M15 18l-6-6 6-6"/></svg>quit');
             btn.id = "pg-quit-header";
-            btn.href = "../../index.html";
+            btn.href = "../../index.html#games";
             btn.title = "Leave this game and return to the games list";
             nav.insertBefore(btn, nav.firstChild);
         }
@@ -293,8 +293,8 @@
         if (panel && !document.getElementById("pg-quit-panel")) {
             var card = el("div", "pg-card");
             card.innerHTML =
-                '<a id="pg-quit-panel" class="pg-chip" href="../../index.html" style="display:block;text-align:center;text-decoration:none">' +
-                    '&larr; quit to home' +
+                '<a id="pg-quit-panel" class="pg-chip" href="../../index.html#games" style="display:block;text-align:center;text-decoration:none">' +
+                    '&larr; back to games' +
                 '</a>';
             panel.appendChild(card);
         }

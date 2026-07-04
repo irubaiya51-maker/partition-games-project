@@ -4,7 +4,7 @@
 // --- PARTITION GENERATION UTILITIES ---
 
 function staircase(n) { let parts = []; let t = n; while (t >= 1) { parts.push(t); t = t - 1; } return parts; }
-function square(n) { let parts = []; let t = n; while (t >= 1) { parts.push(n); t = t - 1; } return parts; }
+function rectangle(rows, cols) { let parts = []; let t = rows; while (t >= 1) { parts.push(cols); t = t - 1; } return parts; }
 function hook(n) { let parts = []; let t = n; parts.push(t); while (t >= 2) { parts.push(1); t = t - 1; } return parts; }
 
 function randomInt(min, max) {
@@ -361,6 +361,9 @@ class AnticornersGui {
         this.rowsInput = document.getElementById('rows-input');
         this.partitionTypeSelect = document.getElementById('partition-type-select');
         this.partitionNumberInput = document.getElementById('partition-number-input');
+        this.partitionNumberLabel = document.getElementById('partition-number-label');
+        this.partitionColsInput = document.getElementById('partition-cols-input');
+        this.partitionColsBox = document.getElementById('partition-cols-box');
         this.generatePartitionBtn = document.getElementById('generate-partition-btn');
         this.aiSelect = document.getElementById('ai-select');
         this.difficultySlider = document.getElementById('difficulty-slider');
@@ -388,6 +391,10 @@ class AnticornersGui {
         
         if (this.generatePartitionBtn) {
             this.generatePartitionBtn.addEventListener('click', () => this.generatePartition());
+        }
+        if (this.partitionTypeSelect) {
+            this.partitionTypeSelect.addEventListener('change', () => this.updatePartitionUI());
+            this.updatePartitionUI();
         }
         
         if (this.undoBtn) {
@@ -814,24 +821,41 @@ class AnticornersGui {
         this.difficultyLabel.textContent = `${difficultyText} (${difficulty})`;
     }
     
+    updatePartitionUI() {
+        const type = this.partitionTypeSelect.value;
+        const isRect = type === 'rectangle';
+        if (this.partitionColsBox) this.partitionColsBox.style.display = isRect ? '' : 'none';
+        if (this.partitionNumberLabel) {
+            this.partitionNumberLabel.textContent = type === 'random' ? 'partitions' : isRect ? 'rows' : type === 'staircase' ? 'rows' : 'size';
+        }
+    }
+
     generatePartition() {
         const partitionType = this.partitionTypeSelect.value;
         const n = parseInt(this.partitionNumberInput.value, 10);
-        
+
         if (isNaN(n) || n <= 0 || n > 200) {
             alert("Please enter a positive number less than or equal to 200.");
             return;
         }
-        
+
         let partition;
         switch (partitionType) {
             case 'random': partition = randomPartition(n); break;
             case 'staircase': partition = staircase(n); break;
-            case 'square': partition = square(n); break;
+            case 'rectangle': {
+                const cols = parseInt(this.partitionColsInput.value, 10);
+                if (isNaN(cols) || cols <= 0 || cols > 200) {
+                    alert("Please enter a positive number of columns less than or equal to 200.");
+                    return;
+                }
+                partition = rectangle(n, cols);
+                break;
+            }
             case 'hook': partition = hook(n); break;
             default: partition = staircase(n);
         }
-        
+
         this.rowsInput.value = partition.join(' ');
     }
 

@@ -17,11 +17,11 @@ function randomPartition(n) {
   return parts.sort((a, b) => b - a); // Sort descending
 }
 
-function square(n) {
+function rectangle(rows, cols) {
   let parts = [];
-  let t = n;
+  let t = rows;
   while (t >= 1) {
-    parts.push(n);
+    parts.push(cols);
     t = t - 1;
   }
   return parts;
@@ -70,15 +70,18 @@ function generatePartition() {
     case 'staircase':
       partition = staircase(n);
       break;
-    case 'square':
-      partition = square(n);
-      break;
     case 'hook':
       partition = hook(n);
       break;
-    case 'rectangle':
-      alert("Rectangle partitions are not yet implemented.");
-      return;
+    case 'rectangle': {
+      const cols = parseInt(document.getElementById('partition-cols-input').value, 10);
+      if (isNaN(cols) || cols <= 0 || cols > 200) {
+        alert("Please enter a positive number of columns less than or equal to 200.");
+        return;
+      }
+      partition = rectangle(n, cols);
+      break;
+    }
     case 'triangle':
       alert("Triangle partitions are not yet implemented.");
       return;
@@ -272,6 +275,8 @@ class RITGui {
     document.getElementById("play-again-btn").onclick = ()=>this.showSetup();  
     document.getElementById("new-game-btn").onclick   = ()=>this.showSetup();  
     document.getElementById("generate-partition-btn").onclick = ()=>this.generatePartition();
+    document.getElementById("partition-type-select").onchange = ()=>this.updatePartitionUI();
+    this.updatePartitionUI();
 
         /* theme & help */  
     this.themeT.onclick = ()=>this.toggleTheme();
@@ -522,11 +527,11 @@ class RITGui {
     return parts; // Already descending
   }
 
-  square(n) {
+  rectangle(rows, cols) {
     let parts = [];
-    let t = n;
+    let t = rows;
     while (t >= 1) {
-      parts.push(n);
+      parts.push(cols);
       t = t - 1;
     }
     return parts;
@@ -565,15 +570,18 @@ class RITGui {
       case 'staircase':
         partition = this.staircase(n);
         break;
-      case 'square':
-        partition = this.square(n);
-        break;
       case 'hook':
         partition = this.hook(n);
         break;
-      case 'rectangle':
-        alert("Rectangle partitions are not yet implemented.");
-        return;
+      case 'rectangle': {
+        const cols = parseInt(document.getElementById('partition-cols-input').value, 10);
+        if (isNaN(cols) || cols <= 0 || cols > 200) {
+          alert("Please enter a positive number of columns less than or equal to 200.");
+          return;
+        }
+        partition = this.rectangle(n, cols);
+        break;
+      }
       case 'triangle':
         alert("Triangle partitions are not yet implemented.");
         return;
@@ -583,6 +591,15 @@ class RITGui {
     }
 
     rowsInput.value = partition.join(' ');
+  }
+
+  updatePartitionUI() {
+    const type = document.getElementById('partition-type-select').value;
+    const isRect = type === 'rectangle';
+    const colsBox = document.getElementById('partition-cols-box');
+    const label = document.getElementById('partition-number-label');
+    if (colsBox) colsBox.style.display = isRect ? '' : 'none';
+    if (label) label.textContent = type === 'random' ? 'partitions' : isRect ? 'rows' : type === 'staircase' ? 'rows' : 'size';
   }
 
 

@@ -138,13 +138,25 @@
         r.sort((a, b) => b - a);                       // a partition is non-increasing
         return r.length ? r.slice(0, 16) : [6, 5, 4, 3, 2];
     }
-    function genPartition(type, n) {
-        n = Math.max(2, Math.min(n || 6, 14));
-        if (type === "rectangle") return Array(n).fill(n);
-        if (type === "staircase") { const r = []; for (let k = n; k >= 1; k--) r.push(k); return r; }
-        const r = []; let prev = n;                    // random non-increasing
-        while (prev > 0 && r.length < n) { const w = 1 + Math.floor(Math.random() * prev); r.push(w); prev = w; }
-        return r.length ? r : [n];
+    function genPartition(type, n, cols) {
+        if (type === "rectangle") {
+            const rows = Math.max(1, Math.round(n || 6));
+            const c = Math.max(1, Math.round(cols || 6));
+            return Array(rows).fill(c);
+        }
+        if (type === "staircase") {
+            const k0 = Math.max(1, Math.round(n || 6));
+            const r = []; for (let k = k0; k >= 1; k--) r.push(k); return r;
+        }
+        // random: a genuine random partition of n total cells — unlimited rows,
+        // each row at most as wide as the one above it.
+        const total = Math.max(1, Math.round(n || 14));
+        const r = []; let remaining = total, maxPart = total;
+        while (remaining > 0) {
+            const w = 1 + Math.floor(Math.random() * Math.min(remaining, maxPart));
+            r.push(w); remaining -= w; maxPart = w;
+        }
+        return r;
     }
     function startCell(rows, mode) {
         // The piece always begins at the upper-left corner of the diagram.
@@ -172,7 +184,8 @@
     }
 
     const ICON = {
-        right: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
+        right: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+        left: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px"><path d="M15 18l-6-6 6-6"/></svg>'
     };
 
     function buildChrome(piece) {
@@ -190,13 +203,26 @@
               '<div class="header-center"><div class="game-title-section"><h1>' + P.name + '</h1></div>' +
                 '<div class="status-container"><p id="status-label">your move</p></div></div>' +
               '<div class="header-right"><nav>' +
-                '<a class="nav-button" href="../../index.html">home</a>' +
                 '<a class="nav-button" href="../../wiki.html">wiki</a>' +
+                '<button id="ic-help" class="nav-button">? help</button>' +
                 '<button id="ic-analysis" class="nav-button" title="Toggle analysis">analysis</button>' +
+                '<a id="ic-quit" class="nav-button" href="../../index.html#games" title="Leave this game and return to the games list">' +
+                  ICON.left + ' quit</a>' +
                 '<button id="theme-toggle" class="theme-toggle nav-button"></button>' +
               '</nav></div>' +
             '</div></div>';
         document.body.insertBefore(header, document.body.children[3] || null);
+
+        const helpPop = el("div");
+        helpPop.id = "ic-help-popover";
+        helpPop.innerHTML = '<h3>how to play</h3><p>' + P.tagline + '</p><p>' + P.win + '</p>';
+        document.body.appendChild(helpPop);
+        const helpBtn = header.querySelector("#ic-help");
+        const showHelp = () => helpPop.classList.add("visible");
+        const hideHelp = () => helpPop.classList.remove("visible");
+        helpBtn.addEventListener("mouseenter", showHelp);
+        helpBtn.addEventListener("mouseleave", hideHelp);
+        helpBtn.addEventListener("click", () => helpPop.classList.toggle("visible"));
 
         const themeBtn = header.querySelector("#theme-toggle");
         const setLabel = () => {
@@ -435,12 +461,19 @@
             '<label>Partition — row lengths (longest first)</label>' +
             '<div class="input-group"><input type="text" id="ic-rows" value="6 5 4 3 2" placeholder="e.g. 6 5 4 3 2"></div>' +
             '<label>…or generate one</label>' +
-            '<div class="input-group"><select id="ic-gentype">' +
-              '<option value="staircase">staircase</option><option value="rectangle">rectangle (square)</option>' +
-              '<option value="random">random</option></select>' +
-              '<input type="number" id="ic-genn" min="2" max="14" value="6" style="max-width:74px">' +
-              '<span id="ic-genn-hint" class="partition-number-hint" style="font-size:12px;opacity:.65;white-space:nowrap">rows</span>' +
-              '<button type="button" id="ic-genbtn" class="secondary-button">generate</button></div>' +
+            '<label>Shape</label>' +
+            '<select id="ic-gentype">' +
+              '<option value="staircase">staircase</option>' +
+              '<option value="rectangle">rectangle</option>' +
+              '<option value="random">random</option>' +
+            '</select>' +
+            '<div class="partition-dims" id="ic-partition-dims">' +
+              '<div class="dim-box"><label id="ic-genn-label" for="ic-genn">partitions</label>' +
+                '<input type="number" id="ic-genn" min="1" value="14"></div>' +
+              '<div class="dim-box" id="ic-gencols-box" style="display:none"><label for="ic-gencols">columns</label>' +
+                '<input type="number" id="ic-gencols" min="1" value="6"></div>' +
+            '</div>' +
+            '<button type="button" id="ic-genbtn" class="secondary-button">generate</button>' +
             '<label>Mode</label>' +
             '<div class="input-group"><select id="ic-mode"><option value="normal" selected>Normal (last move wins)</option>' +
               '<option value="misere">Misère (last move loses)</option></select></div>' +
@@ -464,17 +497,21 @@
         const name = v => v >= 85 ? "Perfect" : v >= 60 ? "Hard" : v >= 35 ? "Medium" : "Easy";
         diff.addEventListener("input", () => lbl.textContent = name(+diff.value) + " (" + diff.value + ")");
         const rowsInput = document.getElementById("ic-rows");
-        const genType = document.getElementById("ic-gentype"), genN = document.getElementById("ic-genn"), genHint = document.getElementById("ic-genn-hint");
-        const GEN_HINTS = { staircase: "rows", rectangle: "side length (n \u00D7 n)", random: "max size" };
-        const updateGenHint = () => {
-            const h = GEN_HINTS[genType.value] || "rows";
-            genHint.textContent = h;
-            genN.title = "Enter the " + h + " for the " + genType.value + " shape.";
+        const genType = document.getElementById("ic-gentype");
+        const genNLabel = document.getElementById("ic-genn-label"), genColsBox = document.getElementById("ic-gencols-box");
+        const GEN_LABELS = { staircase: "rows", rectangle: "rows", random: "partitions" };
+        const updateGenUI = () => {
+            const type = genType.value;
+            genNLabel.textContent = GEN_LABELS[type] || "rows";
+            genColsBox.style.display = type === "rectangle" ? "" : "none";
         };
-        genType.addEventListener("change", updateGenHint);
-        updateGenHint();
+        genType.addEventListener("change", updateGenUI);
+        updateGenUI();
         document.getElementById("ic-genbtn").addEventListener("click", () => {
-            rowsInput.value = genPartition(document.getElementById("ic-gentype").value, +document.getElementById("ic-genn").value).join(" ");
+            const type = document.getElementById("ic-gentype").value;
+            const n = +document.getElementById("ic-genn").value;
+            const cols = +document.getElementById("ic-gencols").value;
+            rowsInput.value = genPartition(type, n, cols).join(" ");
         });
         document.getElementById("ic-start-btn").addEventListener("click", () => {
             const rows = parsePartition(rowsInput.value);

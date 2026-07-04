@@ -46,7 +46,7 @@ function perfectMove(position) {
 // --- PARTITION GENERATION UTILITIES ---
 
 function staircase(n) { let parts = []; let t = n; while (t >= 1) { parts.push(t); t = t - 1; } return parts; }
-function square(n) { let parts = []; let t = n; while (t >= 1) { parts.push(n); t = t - 1; } return parts; }
+function rectangle(rows, cols) { let parts = []; let t = rows; while (t >= 1) { parts.push(cols); t = t - 1; } return parts; }
 function hook(n) { let parts = []; let t = n; parts.push(t); while (t >= 2) { parts.push(1); t = t - 1; } return parts; }
 function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 function randomPartition(n) { let parts = []; let remaining = n; let maxPart = n; while (remaining > 0) { let part = randomInt(1, Math.min(remaining, maxPart)); parts.push(part); remaining -= part; maxPart = part; } return parts.sort((a, b) => b - a); }
@@ -122,6 +122,9 @@ class ProLCTRGui {
         this.rowsInput = document.getElementById('rows-input');
         this.partitionTypeSelect = document.getElementById('partition-type-select');
         this.partitionNumberInput = document.getElementById('partition-number-input');
+        this.partitionNumberLabel = document.getElementById('partition-number-label');
+        this.partitionColsInput = document.getElementById('partition-cols-input');
+        this.partitionColsBox = document.getElementById('partition-cols-box');
         this.generatePartitionBtn = document.getElementById('generate-partition-btn');
         this.gameModeSelect = document.getElementById('game-mode-select');
         this.aiSelect = document.getElementById('ai-select');
@@ -163,6 +166,10 @@ class ProLCTRGui {
         }
         if (this.generatePartitionBtn) {
             this.generatePartitionBtn.addEventListener('click', () => this.generatePartition());
+        }
+        if (this.partitionTypeSelect) {
+            this.partitionTypeSelect.addEventListener('change', () => this.updatePartitionUI());
+            this.updatePartitionUI();
         }
         if (this.gameModeSelect) {
             this.gameModeSelect.addEventListener('change', (e) => {
@@ -293,7 +300,7 @@ class ProLCTRGui {
         let partition;
         if (partitionType === 'random') partition = randomPartition(n);
         else if (partitionType === 'staircase') partition = staircase(n);
-        else if (partitionType === 'square') partition = square(n);
+        else if (partitionType === 'square') partition = rectangle(n, n);
         else if (partitionType === 'hook') partition = hook(n);
         this.multiplayerRowsInput.value = partition.join(' ');
     }
@@ -700,6 +707,15 @@ class ProLCTRGui {
         return 'perfect';
     }
     
+    updatePartitionUI() {
+        const type = this.partitionTypeSelect.value;
+        const isRect = type === 'rectangle';
+        if (this.partitionColsBox) this.partitionColsBox.style.display = isRect ? '' : 'none';
+        if (this.partitionNumberLabel) {
+            this.partitionNumberLabel.textContent = type === 'random' ? 'partitions' : isRect ? 'rows' : type === 'staircase' ? 'rows' : 'size';
+        }
+    }
+
     generatePartition() {
         const partitionType = this.partitionTypeSelect.value;
         const n_str = this.partitionNumberInput.value;
@@ -709,7 +725,11 @@ class ProLCTRGui {
         let partition;
         if (partitionType === 'random') partition = randomPartition(n);
         else if (partitionType === 'staircase') partition = staircase(n);
-        else if (partitionType === 'square') partition = square(n);
+        else if (partitionType === 'rectangle') {
+            const cols = parseInt(this.partitionColsInput.value, 10);
+            if (isNaN(cols) || cols <= 0 || cols > 200) { alert("Please enter a positive number of columns less than or equal to 200."); return; }
+            partition = rectangle(n, cols);
+        }
         else if (partitionType === 'hook') partition = hook(n);
         this.rowsInput.value = partition.join(' ');
     }
@@ -1020,7 +1040,7 @@ if (typeof module !== 'undefined' && module.exports) {
       grundy,
       perfectMove,
       staircase,
-      square,
+      rectangle,
       hook,
       randomPartition,
       Game

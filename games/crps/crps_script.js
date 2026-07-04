@@ -12,7 +12,7 @@ function randomPartition(n){
   return parts.sort((a,b)=>b-a);  
 }  
 function staircase(n){let p=[],t=n;while(t>=1){p.push(t);t--;}return p;}  
-function square(n){let p=[],t=n;while(t>=1){p.push(n);t--;}return p;}  
+function rectangle(rows,cols){let p=[],t=rows;while(t>=1){p.push(cols);t--;}return p;}
 function hook(n){let p=[n];for(let t=n;t>=2;t--)p.push(1);return p;}  
   
 /* =================================================================  
@@ -195,7 +195,9 @@ class CRPS_GUI{
     document.getElementById('play-again-btn').addEventListener('click',()=>{SoundManager.play('click');this.showSetup();});  
     document.getElementById('undo-btn').addEventListener('click',()=>{SoundManager.play('click');this.undoMove();});  
     /* partition generation */  
-    document.getElementById('generate-partition-btn').addEventListener('click',()=>{SoundManager.play('click');this.generatePartition();});  
+    document.getElementById('generate-partition-btn').addEventListener('click',()=>{SoundManager.play('click');this.generatePartition();});
+    document.getElementById('partition-type-select').addEventListener('change',()=>this.updatePartitionUI());
+    this.updatePartitionUI();
     /* theme toggle */  
     const themeTgl=document.getElementById('theme-toggle');  
     const saved=localStorage.getItem('crps-theme')||'light';  
@@ -305,21 +307,35 @@ class CRPS_GUI{
   
   clearBoard(){this.boardArea.innerHTML='';this.idToAddress.clear();}  
   
-  generatePartition(){  
-    const sel=document.getElementById('partition-type-select');  
-    const input=document.getElementById('partition-number-input');  
-    const type=sel.value,n=parseInt(input.value,10);  
-    if(isNaN(n)||n<=0||n>200){alert('Please enter a positive number ≤ 200.');return;}  
-    let partition;  
-    switch(type){  
-      case'random':partition=randomPartition(n);break;  
-      case'staircase':partition=staircase(n);break;  
-      case'square':partition=square(n);break;  
-      case'hook':partition=hook(n);break;  
-      default:alert('This partition type not implemented.');return;  
-    }  
-    this.rowsInput.value=partition.join(' ');  
-  }  
+  updatePartitionUI(){
+    const type=document.getElementById('partition-type-select').value;
+    const isRect=type==='rectangle';
+    const colsBox=document.getElementById('partition-cols-box');
+    const label=document.getElementById('partition-number-label');
+    if(colsBox)colsBox.style.display=isRect?'':'none';
+    if(label)label.textContent=type==='random'?'partitions':isRect?'rows':type==='staircase'?'rows':'size';
+  }
+
+  generatePartition(){
+    const sel=document.getElementById('partition-type-select');
+    const input=document.getElementById('partition-number-input');
+    const type=sel.value,n=parseInt(input.value,10);
+    if(isNaN(n)||n<=0||n>200){alert('Please enter a positive number ≤ 200.');return;}
+    let partition;
+    switch(type){
+      case'random':partition=randomPartition(n);break;
+      case'staircase':partition=staircase(n);break;
+      case'rectangle':{
+        const cols=parseInt(document.getElementById('partition-cols-input').value,10);
+        if(isNaN(cols)||cols<=0||cols>200){alert('Please enter a positive number of columns ≤ 200.');return;}
+        partition=rectangle(n,cols);
+        break;
+      }
+      case'hook':partition=hook(n);break;
+      default:alert('This partition type not implemented.');return;
+    }
+    this.rowsInput.value=partition.join(' ');
+  }
   
   saveGameState(){  
     if(!this.state)return;  
