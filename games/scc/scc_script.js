@@ -406,7 +406,6 @@ class GameUI {
             this.difficultyLabel = document.getElementById('difficulty-label');
             
             this.gameCard = document.getElementById('game-card');
-            this.themeToggle = document.getElementById('theme-toggle');
             this.undoBtn = document.getElementById('undo-btn');
             this.downloadBtn = document.getElementById('download-btn');
             
@@ -464,11 +463,6 @@ class GameUI {
             this.downloadBtn.addEventListener('click', () => this.downloadGame());
         }
         
-        // Theme controls
-        if (this.themeToggle) {
-            this.themeToggle.addEventListener('click', () => this.toggleDarkMode());
-        }
-        
         // Help
         const helpBtn = document.getElementById('help-btn');
         const helpBtnModal = document.getElementById('help-btn-modal');
@@ -501,30 +495,12 @@ class GameUI {
         }
     }
 
-    // Theme management
+    // Theme management (tile skin only — light/dark is handled site-wide)
     initializeTheme() {
-        const savedTheme = localStorage.getItem('strict-continuous-corner-theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        this.updateThemeToggleButton();
-        
         const savedTileTheme = localStorage.getItem('strict-continuous-corner-tile-theme') || 'grass';
         this.currentThemeIndex = this.tileThemes.indexOf(savedTileTheme);
         if (this.currentThemeIndex === -1) this.currentThemeIndex = 0;
         this.applyTileTheme();
-    }
-
-    toggleDarkMode() {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('strict-continuous-corner-theme', newTheme);
-        this.updateThemeToggleButton();
-    }
-
-    updateThemeToggleButton() {
-        if (!this.themeToggle) return;
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        this.themeToggle.textContent = currentTheme === 'dark' ? '☀️ light' : '🌙 dark';
     }
 
     cycleTileTheme() {
