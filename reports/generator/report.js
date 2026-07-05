@@ -21,7 +21,35 @@ document.addEventListener('DOMContentLoaded', () => {
     { select: 'RIT', stateKey: 'ritGameStatesForReport', modeKey: 'ritReportMode' },
     { select: 'SatoWelter', stateKey: 'satoWelterGameStatesForReport', modeKey: 'satoWelterReportMode' },
     { select: 'SICC', stateKey: 'siccGameStatesForReport', modeKey: 'siccReportMode' },
+    { select: 'iChessRook', stateKey: 'rookGameStatesForReport', modeKey: 'rookReportMode' },
+    { select: 'iChessBishop', stateKey: 'bishopGameStatesForReport', modeKey: 'bishopReportMode' },
+    { select: 'iChessQueen', stateKey: 'queenGameStatesForReport', modeKey: 'queenReportMode' },
+    { select: 'iChessKing', stateKey: 'kingGameStatesForReport', modeKey: 'kingReportMode' },
+    { select: 'iChessKnight', stateKey: 'knightGameStatesForReport', modeKey: 'knightReportMode' },
+    { select: 'iChessPawn', stateKey: 'pawnGameStatesForReport', modeKey: 'pawnReportMode' },
+    { select: 'iChessGeneral', stateKey: 'generalGameStatesForReport', modeKey: 'generalReportMode' },
   ];
+
+  const ICHESS_PIECE_BY_SELECT = {
+    iChessRook: 'rook', iChessBishop: 'bishop', iChessQueen: 'queen',
+    iChessKing: 'king', iChessKnight: 'knight', iChessPawn: 'pawn', iChessGeneral: 'general',
+  };
+
+  const formatHint = document.getElementById('format-hint');
+  function updateFormatHint() {
+    const game = gameSelect.value;
+    if (ICHESS_PIECE_BY_SELECT[game]) {
+      formatHint.textContent = 'Format: row lengths, then "@ col,row" for the piece’s cell — e.g. "6 5 4 3 2 @ 2,1".';
+      formatHint.style.display = 'block';
+    } else if (game === 'CRIS') {
+      formatHint.textContent = 'Format: space-separated "HxW" fragments — e.g. "3x4 2x2".';
+      formatHint.style.display = 'block';
+    } else {
+      formatHint.style.display = 'none';
+    }
+  }
+  gameSelect.addEventListener('change', updateFormatHint);
+  updateFormatHint();
 
   function loadFromStorage() {
     for (const { select, stateKey, modeKey } of GAME_STORAGE_KEYS) {
@@ -35,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('game-mode-select').value = mode;
         localStorage.removeItem(modeKey);
       }
+      updateFormatHint();
       return;
     }
   }
@@ -129,6 +158,8 @@ document.addEventListener('DOMContentLoaded', () => {
         window.SatoWelterReport.render(reportContainer, inputArea.value, mode);
       } else if (game === 'SICC') {
         window.SiccReport.render(reportContainer, inputArea.value, mode);
+      } else if (ICHESS_PIECE_BY_SELECT[game]) {
+        window.IChessReport.render(reportContainer, inputArea.value, mode, ICHESS_PIECE_BY_SELECT[game]);
       }
     } catch (error) {
       console.error("An error occurred in a game-specific render function:", error);

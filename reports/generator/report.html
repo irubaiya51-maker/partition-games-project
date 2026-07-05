@@ -35,6 +35,13 @@
           <option value="RIT">RIT</option>
           <option value="SatoWelter">Sato-Welter</option>
           <option value="SICC">SICC</option>
+          <option value="iChessRook">iChess: Rook</option>
+          <option value="iChessBishop">iChess: Bishop</option>
+          <option value="iChessQueen">iChess: Queen</option>
+          <option value="iChessKing">iChess: King</option>
+          <option value="iChessKnight">iChess: Knight</option>
+          <option value="iChessPawn">iChess: Pawn</option>
+          <option value="iChessGeneral">iChess: General</option>
         </select>
       </div>
       <div class="select-group">
@@ -47,8 +54,9 @@
     </div>
 
     <div class="input-container">
-      <label for="game-states-input">Enter Game States (one per line)</label>
+      <label for="game-states-input">Enter Game States (one per line — for iChess and CRIS games, see format hint below)</label>
       <textarea id="game-states-input" rows="8" placeholder="5 4 4 2&#10;3 2 1&#10;4 4"></textarea>
+      <p class="intro" id="format-hint" style="display:none"></p>
       <button id="generate-report-btn">Generate Analysis Report</button>
     </div>
 
@@ -72,6 +80,7 @@
   <script src="rit_report.js"></script>
   <script src="sato_welter_report.js"></script>
   <script src="scc_report.js"></script>
+  <script src="ichess_report.js"></script>
   <script src="report.js"></script>
 </body>
 </html>

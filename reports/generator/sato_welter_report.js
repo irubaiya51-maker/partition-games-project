@@ -28,7 +28,7 @@ class SWBoard {
         const next = [...this.rows];
         next[r] = Math.min(next[r], c); // row r loses everything from column c onward
         for (let row = r + 1; row < next.length; row++) {
-            if (next[row] > c) next[row] = c; // rows below lose their cell in column c and beyond
+            if (next[row] > c) next[row] -= 1; // rows below lose only their single cell in column c
         }
         const compacted = next.filter(len => len > 0).sort((a, b) => b - a);
         return new SWBoard(compacted);

@@ -286,6 +286,8 @@
         });
         document.getElementById("ic-new").addEventListener("click", () => openSetup());
         refs.over.querySelector("#ic-again").addEventListener("click", () => openSetup());
+        refs.over.querySelector("#ic-download").addEventListener("click", () => downloadGame(state));
+        refs.over.querySelector("#ic-report").addEventListener("click", () => openGameReport(state));
 
         wireSetup(state, refs, begin);
         openSetup();
@@ -297,6 +299,7 @@
             state.solver = makeSolver(state.piece, state.rows);
             state.moveCount = 0; state.over = false; state.busy = false;
             state.turn = "A";
+            state.history = [[state.c, state.r]];
             refs.setup.classList.remove("visible");
             refs.over.classList.remove("visible");
             refs.log.innerHTML = "";
@@ -375,6 +378,7 @@
             clearHints();
             playSound("move");
             state.c = c; state.r = r; state.moveCount++;
+            state.history.push([c, r]);
             placePiece();
             logMove(who, c, r);
             const finished = state.solver.legal(c, r).length === 0;
@@ -488,9 +492,105 @@
     function overModalHTML() {
         return '<div id="ic-over" class="modal-backdrop"><div class="modal">' +
             '<h2 id="ic-over-title">Game over</h2><p id="ic-over-msg"></p>' +
+            '<div class="modal-button-group" style="display:flex;justify-content:center;gap:10px;margin-bottom:2px">' +
+              '<button id="ic-download" class="secondary-button" style="width:auto;flex:1" title="Download Game History">download</button>' +
+              '<button id="ic-report" class="secondary-button" style="width:auto;flex:1" title="Generate Game Report">game report</button>' +
+            '</div>' +
             '<button id="ic-again" class="modal-btn">play again</button>' +
             '<a href="../../index.html#games" class="secondary-button ic-quit-link">&larr; back to games</a>' +
         '</div></div>';
+    }
+
+    /* ---------------- game report + download ---------------- */
+    function openGameReport(state) {
+        const rowsStr = state.rows.join(' ');
+        const statesStr = (state.history || []).map(([c, r]) => rowsStr + ' @ ' + c + ',' + r).join('\n');
+        localStorage.setItem(state.piece + 'GameStatesForReport', statesStr);
+        localStorage.setItem(state.piece + 'ReportMode', state.mode || 'normal');
+        window.open('../../reports/generator/report.html', '_blank');
+    }
+
+    function downloadGame(state) {
+        const P = PIECES[state.piece];
+        const title = P.name + ' Game Replay - ' + new Date().toLocaleDateString();
+        const html = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">' +
+            '<meta name="viewport" content="width=device-width,initial-scale=1.0">' +
+            '<title>' + title + '</title><style>' +
+            'body{font-family:sans-serif;background:#0a0a0f;color:#f4f3f1;margin:0;padding:20px;min-height:100vh;display:flex;flex-direction:column;align-items:center;}' +
+            '.container{background:#14141c;border-radius:20px;padding:30px;max-width:800px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.4);text-align:center;}' +
+            'h1{margin-top:0;letter-spacing:1px;}' +
+            '.controls{margin:20px 0;display:flex;justify-content:center;align-items:center;gap:20px;flex-wrap:wrap;}' +
+            'button{padding:12px 20px;font-size:16px;border:none;border-radius:8px;background:#2a2a36;color:#f4f3f1;cursor:pointer;}' +
+            'button:hover{background:#3a3a46;}button:disabled{opacity:.4;cursor:not-allowed;}' +
+            '.state-info{font-size:18px;margin:10px 0;font-weight:bold;}' +
+            '#board-canvas{border-radius:12px;margin:20px auto;display:block;background:#1c1c26;}' +
+            '</style></head><body><div class="container"><h1>' + title + '</h1>' +
+            '<div class="state-info">Move <span id="current-state">1</span> of <span id="total-states"></span></div>' +
+            '<div class="controls">' +
+              '<button id="first-btn">&#9198; First</button>' +
+              '<button id="prev-btn">&#9664; Previous</button>' +
+              '<button id="play-btn">&#9654; Play</button>' +
+              '<button id="next-btn">Next &#9654;</button>' +
+              '<button id="last-btn">Last &#9197;</button>' +
+            '</div>' +
+            '<canvas id="board-canvas" width="400" height="400"></canvas>' +
+            '</div><script>' +
+            'const rows=' + JSON.stringify(state.rows) + ';' +
+            'const history=' + JSON.stringify(state.history || []) + ';' +
+            'const glyph=' + JSON.stringify(P.glyph) + ';' +
+            'let idx=0,playing=false,timer;' +
+            'const CELL=40,MARGIN=20;' +
+            'const canvas=document.getElementById("board-canvas"),ctx=canvas.getContext("2d");' +
+            'function draw(){' +
+              'const H=rows.length,W=Math.max.apply(null,rows);' +
+              'canvas.width=MARGIN*2+W*CELL;canvas.height=MARGIN*2+H*CELL;' +
+              'ctx.clearRect(0,0,canvas.width,canvas.height);' +
+              'for(let r=0;r<H;r++)for(let c=0;c<rows[r];c++){' +
+                'ctx.fillStyle=((c+r)%2===0)?"#232330":"#1a1a24";' +
+                'ctx.fillRect(MARGIN+c*CELL,MARGIN+r*CELL,CELL,CELL);' +
+              '}' +
+              'ctx.strokeStyle="rgba(255,255,255,.15)";' +
+              'for(let r=0;r<H;r++)for(let c=0;c<rows[r];c++)ctx.strokeRect(MARGIN+c*CELL,MARGIN+r*CELL,CELL,CELL);' +
+              'const pos=history[idx];' +
+              'if(pos){' +
+                'ctx.fillStyle="#FF6B35";' +
+                'ctx.font=(CELL*0.6)+"px sans-serif";' +
+                'ctx.textAlign="center";ctx.textBaseline="middle";' +
+                'ctx.fillText(glyph,MARGIN+pos[0]*CELL+CELL/2,MARGIN+pos[1]*CELL+CELL/2);' +
+              '}' +
+              'document.getElementById("current-state").textContent=idx+1;' +
+              'document.getElementById("total-states").textContent=history.length;' +
+              'document.getElementById("first-btn").disabled=idx===0;' +
+              'document.getElementById("prev-btn").disabled=idx===0;' +
+              'document.getElementById("next-btn").disabled=idx===history.length-1;' +
+              'document.getElementById("last-btn").disabled=idx===history.length-1;' +
+            '}' +
+            'function go(i){if(i>=0&&i<history.length){idx=i;draw();}}' +
+            'document.getElementById("first-btn").onclick=()=>go(0);' +
+            'document.getElementById("prev-btn").onclick=()=>go(idx-1);' +
+            'document.getElementById("next-btn").onclick=()=>go(idx+1);' +
+            'document.getElementById("last-btn").onclick=()=>go(history.length-1);' +
+            'document.getElementById("play-btn").onclick=function(){' +
+              'const btn=this;' +
+              'if(playing){clearInterval(timer);playing=false;btn.textContent="▶ Play";}' +
+              'else{playing=true;btn.textContent="⏸ Pause";' +
+                'timer=setInterval(()=>{if(idx<history.length-1)go(idx+1);else{clearInterval(timer);playing=false;btn.textContent="▶ Play";}},900);}' +
+            '};' +
+            'document.addEventListener("keydown",e=>{' +
+              'if(e.key==="ArrowLeft"){e.preventDefault();go(idx-1);}' +
+              'else if(e.key==="ArrowRight"){e.preventDefault();go(idx+1);}' +
+            '});' +
+            'draw();' +
+            '</script></body></html>';
+        const blob = new Blob([html], { type: "text/html" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = P.name + "-Game-" + Date.now() + ".html";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
     function wireSetup(state, refs, begin) {
         const diff = document.getElementById("ic-diff"), lbl = document.getElementById("ic-difflabel");
