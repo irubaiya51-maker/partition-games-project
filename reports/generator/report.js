@@ -10,43 +10,32 @@ document.addEventListener('DOMContentLoaded', () => {
   const chartCanvas = document.getElementById('g-number-chart');
   let gNumberChart = null;
 
+  const GAME_STORAGE_KEYS = [
+    { select: 'Corner', stateKey: 'cornerGameStatesForReport', modeKey: 'cornerReportMode' },
+    { select: 'LCTR', stateKey: 'lctrGameStatesForReport', modeKey: 'lctrReportMode' },
+    { select: 'CRIM', stateKey: 'crimGameStatesForReport', modeKey: 'crimReportMode' },
+    { select: 'Anticorners', stateKey: 'anticornersGameStatesForReport', modeKey: 'anticornersReportMode' },
+    { select: 'ContinuousCorner', stateKey: 'continuousCornerGameStatesForReport', modeKey: 'continuousCornerReportMode' },
+    { select: 'CRIT', stateKey: 'critGameStatesForReport', modeKey: 'critReportMode' },
+    { select: 'CRIS', stateKey: 'crisGameStatesForReport', modeKey: 'crisReportMode' },
+    { select: 'RIT', stateKey: 'ritGameStatesForReport', modeKey: 'ritReportMode' },
+    { select: 'SatoWelter', stateKey: 'satoWelterGameStatesForReport', modeKey: 'satoWelterReportMode' },
+    { select: 'SICC', stateKey: 'siccGameStatesForReport', modeKey: 'siccReportMode' },
+  ];
+
   function loadFromStorage() {
-    const cornerKey = 'cornerGameStatesForReport';
-    const lctrKey = 'lctrGameStatesForReport';
-    const crimKey = 'crimGameStatesForReport';
-    const cornerModeKey = 'cornerReportMode';
-    const lctrModeKey = 'lctrReportMode';
-    const crimModeKey = 'crimReportMode';
-    const corner = localStorage.getItem(cornerKey);
-    const lctr = localStorage.getItem(lctrKey);
-    const crim = localStorage.getItem(crimKey);
-    if (corner) {
-      gameSelect.value = 'Corner';
-      inputArea.value = corner;
-      localStorage.removeItem(cornerKey);
-      const mode = localStorage.getItem(cornerModeKey);
+    for (const { select, stateKey, modeKey } of GAME_STORAGE_KEYS) {
+      const states = localStorage.getItem(stateKey);
+      if (!states) continue;
+      gameSelect.value = select;
+      inputArea.value = states;
+      localStorage.removeItem(stateKey);
+      const mode = localStorage.getItem(modeKey);
       if (mode === 'misere' || mode === 'normal') {
         document.getElementById('game-mode-select').value = mode;
-        localStorage.removeItem(cornerModeKey);
+        localStorage.removeItem(modeKey);
       }
-    } else if (lctr) {
-      gameSelect.value = 'LCTR';
-      inputArea.value = lctr;
-      localStorage.removeItem(lctrKey);
-      const mode = localStorage.getItem(lctrModeKey);
-      if (mode === 'misere' || mode === 'normal') {
-        document.getElementById('game-mode-select').value = mode;
-        localStorage.removeItem(lctrModeKey);
-      }
-    } else if (crim) {
-      gameSelect.value = 'CRIM';
-      inputArea.value = crim;
-      localStorage.removeItem(crimKey);
-      const mode = localStorage.getItem(crimModeKey);
-      if (mode === 'misere' || mode === 'normal') {
-        document.getElementById('game-mode-select').value = mode;
-        localStorage.removeItem(crimModeKey);
-      }
+      return;
     }
   }
 
@@ -126,6 +115,20 @@ document.addEventListener('DOMContentLoaded', () => {
         window.LctrReport.render(reportContainer, inputArea.value, mode);
       } else if (game === 'CRIM') {
         window.CrimReport.render(reportContainer, inputArea.value, mode);
+      } else if (game === 'Anticorners') {
+        window.AnticornersReport.render(reportContainer, inputArea.value, mode);
+      } else if (game === 'ContinuousCorner') {
+        window.ContinuousCornerReport.render(reportContainer, inputArea.value, mode);
+      } else if (game === 'CRIT') {
+        window.CritReport.render(reportContainer, inputArea.value, mode);
+      } else if (game === 'CRIS') {
+        window.CrisReport.render(reportContainer, inputArea.value, mode);
+      } else if (game === 'RIT') {
+        window.RitReport.render(reportContainer, inputArea.value, mode);
+      } else if (game === 'SatoWelter') {
+        window.SatoWelterReport.render(reportContainer, inputArea.value, mode);
+      } else if (game === 'SICC') {
+        window.SiccReport.render(reportContainer, inputArea.value, mode);
       }
     } catch (error) {
       console.error("An error occurred in a game-specific render function:", error);

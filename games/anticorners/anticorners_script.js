@@ -381,6 +381,7 @@ class AnticornersGui {
         this.undoBtn = document.getElementById('undo-btn');
         this.downloadBtn = document.getElementById('download-btn');
         this.downloadBtnModal = document.getElementById('download-btn-modal');
+        this.reportBtnModal = document.getElementById('report-btn-modal');
     }
 
     bindEventListeners() {
@@ -405,6 +406,10 @@ class AnticornersGui {
             this.downloadBtn.addEventListener('click', () => this.downloadGame());
         }
         
+        if (this.reportBtnModal) {
+            this.reportBtnModal.addEventListener('click', () => this.openGameReport());
+        }
+
         if (this.downloadBtnModal) {
             this.downloadBtnModal.addEventListener('click', () => this.downloadGame());
         }
@@ -859,9 +864,24 @@ class AnticornersGui {
         this.rowsInput.value = partition.join(' ');
     }
 
+    openGameReport() {
+        if (!this.game) return;
+        const allStates = (this.gameStates || []).map(state => {
+            const grid = state.grid;
+            if (!Array.isArray(grid)) return '';
+            const rowLengths = grid.map(row => row.reduce((s, v) => s + (v > 0 ? 1 : 0), 0)).filter(len => len > 0).sort((a, b) => b - a);
+            return rowLengths.join(' ');
+        }).filter(Boolean);
+        const uniqueStates = allStates.filter((s, i, self) => s && (i === 0 || s !== self[i - 1]));
+        const statesString = uniqueStates.join('\n');
+        localStorage.setItem('anticornersGameStatesForReport', statesString);
+        localStorage.setItem('anticornersReportMode', 'normal');
+        window.open('../../reports/generator/report.html', '_blank');
+    }
+
     downloadGame() {
         if (!this.game || this.gameStates.length === 0) return;
-        
+
         const htmlContent = this.generateGameReplayHTML(this.gameStates, this.initialPartition);
         const blob = new Blob([htmlContent], { type: 'text/html' });
         const url = URL.createObjectURL(blob);

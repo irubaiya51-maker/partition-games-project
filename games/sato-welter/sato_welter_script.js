@@ -270,6 +270,7 @@ class SatoWelterGui {
         this.helpBtnModal = document.getElementById('help-btn-modal');
         this.helpPopover = document.getElementById('help-popover');
         this.downloadBtnModal = document.getElementById('download-btn-modal');
+        this.reportBtnModal = document.getElementById('report-btn-modal');
     }
     bindEventListeners() {
         this.startGameBtn.addEventListener('click', () => this.processSetup());
@@ -293,6 +294,9 @@ class SatoWelterGui {
         }
         if (this.downloadBtnModal) {
             this.downloadBtnModal.addEventListener('click', () => { SoundManager.play('click'); this.downloadGame(); });
+        }
+        if (this.reportBtnModal) {
+            this.reportBtnModal.addEventListener('click', () => { SoundManager.play('click'); this.openGameReport(); });
         }
         if (this.themeSelect) {
             this.themeSelect.addEventListener('change', () => this.applyTileTheme());
@@ -587,6 +591,22 @@ class SatoWelterGui {
         this.updateDownloadButton();
     }
     
+    openGameReport() {
+        if (!this.game) return;
+        const allStates = (this.gameHistory || []).map(state => {
+            const grid = state.board && state.board.grid;
+            if (!Array.isArray(grid)) return '';
+            const rowLengths = grid.map(row => row.reduce((s, v) => s + (v > 0 ? 1 : 0), 0)).filter(len => len > 0).sort((a, b) => b - a);
+            return rowLengths.join(' ');
+        }).filter(Boolean);
+        const currentRowLens = this.game.getBoard().getRowSizes ? this.game.getBoard().getRowSizes().join(' ') : '';
+        if (currentRowLens) allStates.push(currentRowLens);
+        const uniqueStates = allStates.filter((s, i, self) => s && (i === 0 || s !== self[i - 1]));
+        localStorage.setItem('satoWelterGameStatesForReport', uniqueStates.join('\n'));
+        localStorage.setItem('satoWelterReportMode', 'normal');
+        window.open('../../reports/generator/report.html', '_blank');
+    }
+
     downloadGame() {
         if (!this.game) return;
         

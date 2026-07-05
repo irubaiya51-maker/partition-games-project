@@ -352,6 +352,14 @@ class CRITGui {
     if (downloadBtn) {
       downloadBtn.onclick = () => this.downloadGame();
     }
+    const downloadBtnModal = document.getElementById("download-btn-modal");
+    if (downloadBtnModal) {
+      downloadBtnModal.onclick = () => this.downloadGame();
+    }
+    const reportBtnModal = document.getElementById("report-btn-modal");
+    if (reportBtnModal) {
+      reportBtnModal.onclick = () => this.openGameReport();
+    }
 
     /* theme & help */  
     if (this.themeT) {
@@ -818,12 +826,23 @@ class CRITGui {
     if (label) label.textContent = type === 'random' ? 'partitions' : isRect ? 'rows' : type === 'staircase' ? 'rows' : 'size';
   }
 
+  openGameReport() {
+    if (!this.game) return;
+    const allStates = (this.gameHistory || []).map(state => state.board.rows.filter(n => n > 0).sort((a, b) => b - a).join(' ')).filter(Boolean);
+    const currentRowLens = this.game.board.rows.filter(n => n > 0).sort((a, b) => b - a).join(' ');
+    if (currentRowLens) allStates.push(currentRowLens);
+    const uniqueStates = allStates.filter((s, i, self) => s && (i === 0 || s !== self[i - 1]));
+    localStorage.setItem('critGameStatesForReport', uniqueStates.join('\n'));
+    localStorage.setItem('critReportMode', 'normal');
+    window.open('../../reports/generator/report.html', '_blank');
+  }
+
   downloadGame() {
     if (!this.gameHistory || this.gameHistory.length === 0) {
       alert("No game history to download");
       return;
     }
-    
+
     // Collect all game states including current
     const allStates = [...this.gameHistory];
     

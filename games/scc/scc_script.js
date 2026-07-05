@@ -408,6 +408,8 @@ class GameUI {
             this.gameCard = document.getElementById('game-card');
             this.undoBtn = document.getElementById('undo-btn');
             this.downloadBtn = document.getElementById('download-btn');
+            this.downloadBtnModal = document.getElementById('download-btn-modal');
+            this.reportBtnModal = document.getElementById('report-btn-modal');
             
             // Set initial status if status label exists
             if (this.statusLabel) {
@@ -462,7 +464,13 @@ class GameUI {
         if (this.downloadBtn) {
             this.downloadBtn.addEventListener('click', () => this.downloadGame());
         }
-        
+        if (this.downloadBtnModal) {
+            this.downloadBtnModal.addEventListener('click', () => this.downloadGame());
+        }
+        if (this.reportBtnModal) {
+            this.reportBtnModal.addEventListener('click', () => this.openGameReport());
+        }
+
         // Help
         const helpBtn = document.getElementById('help-btn');
         const helpBtnModal = document.getElementById('help-btn-modal');
@@ -931,6 +939,20 @@ class GameUI {
         }
 
         this.rowsInput.value = partition.join(' ');
+    }
+
+    openGameReport() {
+        if (!this.game) return;
+        const allStates = (this.game.gameHistory || []).map(state => {
+            const rows = state.board && state.board.rows;
+            return Array.isArray(rows) ? rows.filter(n => n > 0).join(' ') : '';
+        }).filter(Boolean);
+        const currentRowLens = this.game.board.rows.filter(n => n > 0).join(' ');
+        if (currentRowLens) allStates.push(currentRowLens);
+        const uniqueStates = allStates.filter((s, i, self) => s && (i === 0 || s !== self[i - 1]));
+        localStorage.setItem('siccGameStatesForReport', uniqueStates.join('\n'));
+        localStorage.setItem('siccReportMode', 'normal');
+        window.open('../../reports/generator/report.html', '_blank');
     }
 
     // Download game

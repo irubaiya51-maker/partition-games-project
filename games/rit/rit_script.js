@@ -386,11 +386,12 @@ class RITGui {
     for(let c=m.newLen;c<len;c++)  
       document.getElementById(`t-${m.r}-${c}`)?.classList.add("removing");  
 
-    setTimeout(()=>{  
+    setTimeout(()=>{
       // Track the move
       this.movesSequence.push(`R${m.r}C${m.newLen}-${len-1}`);
-      
-      const done=this.game.move(m);  
+      this.gameHistory.push([...this.game.board.rows]); // Save state before the move, for replay/report
+
+      const done=this.game.move(m);
       this.anim=false; this.draw();  
       if(done){  
         // --- FIX: Save empty board state for replay ---
@@ -675,19 +676,6 @@ class RITGui {
 // ────────────────────────────────────────────────────────────  
 // 6.  Boot  
 // ────────────────────────────────────────────────────────────  
-function downloadGameRIT() {
-  if (!window.ritApp || !window.ritApp.game) return;
-  const gameState = JSON.stringify(window.ritApp.game.board.rows);
-  const blob = new Blob([gameState], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'game_state.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
 function downloadGameHTML_RIT() {
   if (!window.ritApp || !window.ritApp.gameHistory || window.ritApp.gameHistory.length === 0) {
     alert('No game state found.');
@@ -809,12 +797,18 @@ function downloadGameHTML_RIT() {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
-window.addEventListener('load', () => {
-  const btn = document.getElementById('download-btn');
-  if (btn) btn.addEventListener('click', downloadGameRIT);
-});
+function openGameReportRIT() {
+  if (!window.ritApp || !window.ritApp.gameHistory) return;
+  const allStates = window.ritApp.gameHistory.map(rows => Array.isArray(rows) ? rows.filter(n => n > 0).join(' ') : '').filter(Boolean);
+  const uniqueStates = allStates.filter((s, i, self) => s && (i === 0 || s !== self[i - 1]));
+  localStorage.setItem('ritGameStatesForReport', uniqueStates.join('\n'));
+  localStorage.setItem('ritReportMode', 'normal');
+  window.open('../../reports/generator/report.html', '_blank');
+}
 window.addEventListener('load', () => {
   const btn = document.getElementById('download-btn');
   if (btn) btn.addEventListener('click', downloadGameHTML_RIT);
+  const reportBtn = document.getElementById('report-btn-modal');
+  if (reportBtn) reportBtn.addEventListener('click', openGameReportRIT);
 });
-window.onload = ()=>{ window.ritApp = new RITGui(); };  
+window.onload = ()=>{ window.ritApp = new RITGui(); };

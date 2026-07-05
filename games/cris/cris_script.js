@@ -622,13 +622,28 @@ function downloadGame(){
   setTimeout(()=>URL.revokeObjectURL(url),1000);  
 }  
   
-/* one binding */  
-window.addEventListener('load',()=>{  
-  const btn=document.getElementById('download-btn');  
-  if(btn)btn.addEventListener('click',downloadGame);  
-  const btnModal=document.getElementById('download-btn-modal');  
-  if(btnModal)btnModal.addEventListener('click',downloadGame);  
-});  
+/* ────────────────────  GAME REPORT  ──────────────────── */
+function openGameReport(){
+  if(!window.crisApp||!window.crisApp.state){alert('No game state found.');return;}
+  const app=window.crisApp;
+  const historyStates=app.gameHistory.map(h=>h.fragments.map(f=>`${f.rows}x${f.cols}`).join(' '));
+  const currentState=app.state.fragments.map(f=>`${f.rows}x${f.cols}`).join(' ');
+  const allStates=[...historyStates,currentState].filter(Boolean);
+  const uniqueStates=allStates.filter((s,i,self)=>s&&(i===0||s!==self[i-1]));
+  localStorage.setItem('crisGameStatesForReport',uniqueStates.join('\n'));
+  localStorage.setItem('crisReportMode','normal');
+  window.open('../../reports/generator/report.html','_blank');
+}
+
+/* one binding */
+window.addEventListener('load',()=>{
+  const btn=document.getElementById('download-btn');
+  if(btn)btn.addEventListener('click',downloadGame);
+  const btnModal=document.getElementById('download-btn-modal');
+  if(btnModal)btnModal.addEventListener('click',downloadGame);
+  const reportBtnModal=document.getElementById('report-btn-modal');
+  if(reportBtnModal)reportBtnModal.addEventListener('click',openGameReport);
+});
   
 /* --- HTML GENERATOR ------------------------------------------------ */  
 function generateGameReplayHTML_CRIS(gameStates){  

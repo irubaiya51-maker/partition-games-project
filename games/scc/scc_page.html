@@ -125,6 +125,14 @@
         <div class="modal">
             <h2 id="game-over-title">Game Over</h2>
             <p id="game-over-message">Player A wins!</p>
+            <div class="modal-button-group" style="display: flex; justify-content: center; gap: 10px; margin-bottom: 12px;">
+                <button id="download-btn-modal" class="icon-button" aria-label="Download Game" title="Download Game History" style="display: flex; align-items: center; justify-content: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/></svg> Download
+                </button>
+                <button id="report-btn-modal" class="icon-button" aria-label="Game Report" title="Generate Game Report" style="display: flex; align-items: center; justify-content: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2M18 20H6V4H13V9H18V20M8 12H16V14H8V12M8 16H16V18H8V16Z"/></svg> Game Report
+                </button>
+            </div>
             <button id="play-again-btn" class="modal-btn">play again</button>
             <a class="secondary-button" href="../../index.html#games" style="display:block;text-align:center;margin-top:10px;text-decoration:none">&larr; back to games</a>
         </div>

@@ -124,9 +124,14 @@
         <h2 id="game-over-title">game over</h2>
         <hr>
         <p id="game-over-message">player x wins!</p>
-        <button id="download-btn-modal" class="secondary-button" aria-label="download game" title="download game history">
-            download game history
-        </button>
+        <div class="modal-button-group" style="display: flex; justify-content: center; gap: 10px; margin-bottom: 12px;">
+            <button id="download-btn-modal" class="secondary-button" aria-label="download game" title="download game history">
+                download game history
+            </button>
+            <button id="report-btn-modal" class="secondary-button" aria-label="game report" title="generate game report">
+                game report
+            </button>
+        </div>
         <button id="play-again-btn" class="modal-btn">play again</button>
         <a class="secondary-button" href="../../index.html#games" style="display:block;text-align:center;margin-top:10px;text-decoration:none">&larr; back to games</a>
     </div>

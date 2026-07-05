@@ -388,6 +388,7 @@ class ContinuousCornerGui {
         this.gameOverMessage = document.getElementById('game-over-message');
         this.playAgainBtn = document.getElementById('play-again-btn');
         this.downloadBtn = document.getElementById('download-btn-modal');
+        this.reportBtn = document.getElementById('report-btn-modal');
         
         // Selection elements
         this.selectionControls = document.getElementById('selection-controls');
@@ -431,8 +432,12 @@ class ContinuousCornerGui {
         if (this.downloadBtn) {
             this.downloadBtn.addEventListener('click', () => this.downloadGameHistory());
         }
-        
-        
+
+        if (this.reportBtn) {
+            this.reportBtn.addEventListener('click', () => this.openGameReport());
+        }
+
+
         if (this.cycleThemeBtn) {
             this.cycleThemeBtn.addEventListener('click', () => this.cycleTileTheme());
             this.cycleThemeBtn.addEventListener('wheel', (e) => {
@@ -1003,6 +1008,20 @@ class ContinuousCornerGui {
         if (this.helpPopover) {
             this.helpPopover.classList.toggle('visible');
         }
+    }
+
+    openGameReport() {
+        if (!this.game) return;
+        const allStates = (this.gameHistory || []).map(tuple => {
+            try {
+                const arr = JSON.parse(tuple);
+                return Array.isArray(arr) ? arr.filter(n => n > 0).join(' ') : '';
+            } catch (e) { return ''; }
+        }).filter(Boolean);
+        const uniqueStates = allStates.filter((s, i, self) => s && (i === 0 || s !== self[i - 1]));
+        localStorage.setItem('continuousCornerGameStatesForReport', uniqueStates.join('\n'));
+        localStorage.setItem('continuousCornerReportMode', 'normal');
+        window.open('../../reports/generator/report.html', '_blank');
     }
 
     downloadGameHistory() {
