@@ -266,6 +266,9 @@
             '</div>' +
             setupModalHTML() + overModalHTML();
 
+        const sqTooltip = el("div", "ic-sq-tooltip");
+        document.body.appendChild(sqTooltip);
+
         const refs = {
             board: document.getElementById("ic-board"),
             turn: document.getElementById("ic-turn"), turnText: document.getElementById("ic-turntext"),
@@ -322,7 +325,12 @@
                     sq.dataset.c = c; sq.dataset.r = r;
                     // an "outer corner" is any cell from which this piece has no
                     // legal move left — the game-ending cells for the current piece.
-                    if (state.solver && state.solver.legal(c, r).length === 0) sq.classList.add("corner");
+                    if (state.solver && state.solver.legal(c, r).length === 0) {
+                        sq.classList.add("corner");
+                        sq.addEventListener("mouseenter", showSqTooltip);
+                        sq.addEventListener("mousemove", moveSqTooltip);
+                        sq.addEventListener("mouseleave", hideSqTooltip);
+                    }
                     sq.addEventListener("click", () => onSquare(c, r));
                     b.appendChild(sq);
                 }
@@ -342,6 +350,19 @@
                 sq.appendChild(el("div", "ic-piece", PIECES[state.piece].glyph));
             }
         }
+
+        function showSqTooltip(e) {
+            sqTooltip.textContent = state.mode === "misere"
+                ? "Terminal position — no moves left here. Move your piece here and you make the last move, so you LOSE (misère)."
+                : "Terminal position — no moves left here. Move your piece here and you make the last move, so you WIN.";
+            sqTooltip.classList.add("visible");
+            moveSqTooltip(e);
+        }
+        function moveSqTooltip(e) {
+            sqTooltip.style.left = e.clientX + "px";
+            sqTooltip.style.top = (e.clientY - 14) + "px";
+        }
+        function hideSqTooltip() { sqTooltip.classList.remove("visible"); }
 
         function clearHints() { refs.board.querySelectorAll(".ic-sq.move,.ic-sq.win,.ic-sq.from").forEach(s => s.classList.remove("move", "win", "from")); }
         function showHints() {
