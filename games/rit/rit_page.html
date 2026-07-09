@@ -72,12 +72,7 @@
         <h2>Game Setup</h2>
         <button id="help-btn-modal" class="icon-button" aria-label="Help">[?]</button>
       </div>
-      <p>Enter the partition of the initial Young-diagram.</p>  
-
-      <label for="rows-input">Row Lengths</label>  
-      <input id="rows-input" type="text" value="5 4 2 1" placeholder="e.g., 5 4 2 1">  
-
-      <hr>
+      <p>Choose a shape, then generate the initial Young-diagram.</p>
 
       <label for="partition-type-select">Shape</label>
       <select id="partition-type-select" class="partition-type-dropdown">
@@ -99,9 +94,12 @@
       </div>
       <button id="generate-partition-btn" class="secondary-button">generate</button>
       <hr>
+      <label for="rows-input">Preview</label>
+      <input id="rows-input" type="text" value="5 4 2 1" placeholder="e.g., 5 4 2 1" readonly>
+      <hr>
       <label for="ai-select">Computer Player</label>
       <select id="ai-select">
-        <option value="B">Bob (Starts Second)</option>
+        <option value="B">Bob (Plays Second)</option>
         <option value="A">Alice (Starts First)</option>
         <option value="None">None (Two Human Players)</option>
       </select>

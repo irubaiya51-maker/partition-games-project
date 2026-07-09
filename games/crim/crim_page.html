@@ -79,16 +79,7 @@
                 <h2>Game Setup</h2>
                 <button id="help-btn-modal" class="icon-button" aria-label="Help">[?]</button>
             </div>
-            <p>Enter a board configuration manually, or generate one randomly.</p>
-            <label for="rows-input">Row Lengths</label>
-            <input type="text" id="rows-input" value="5 4 4 2" placeholder="e.g., 5 4 4 2">
-            <hr>
-            <label for="game-mode-select">Game Mode</label>
-            <select id="game-mode-select">
-                <option value="normal" selected>Normal (last move wins)</option>
-                <option value="misere">Misere (last move loses)</option>
-            </select>
-            <hr>
+            <p>Choose a shape, then generate a board configuration.</p>
             <label for="partition-type-select">Shape</label>
             <select id="partition-type-select" class="partition-type-dropdown">
                     <option value="random">random</option>
@@ -108,9 +99,18 @@
             </div>
             <button id="generate-partition-btn" class="secondary-button">generate</button>
             <hr>
+            <label for="rows-input">Preview</label>
+            <input type="text" id="rows-input" value="5 4 4 2" placeholder="e.g., 5 4 4 2" readonly>
+            <hr>
+            <label for="game-mode-select">Game Mode</label>
+            <select id="game-mode-select">
+                <option value="normal" selected>Normal (last move wins)</option>
+                <option value="misere">Misere (last move loses)</option>
+            </select>
+            <hr>
             <label for="ai-select">Computer Player</label>
             <select id="ai-select">
-                <option value="B">Bob (Starts Second)</option>
+                <option value="B">Bob (Plays Second)</option>
                 <option value="A">Alice (Starts First)</option>
                 <option value="None">None (Two Human Players)</option>
             </select>

@@ -75,12 +75,7 @@
             <button id="help-btn-modal" class="icon-button" aria-label="help">help</button>
         </div>
         <hr>
-        <p>enter a board configuration manually, or generate one randomly.</p>
-        
-        <label for="rows-input">row lengths</label>
-        <input type="text" id="rows-input" value="5 4 4 2" placeholder="e.g., 5 4 4 2">
-        
-        <hr>
+        <p>choose a shape, then generate a board configuration.</p>
 
         <label for="partition-type-select">Shape</label>
         <select id="partition-type-select" class="partition-type-dropdown">
@@ -100,17 +95,22 @@
             </div>
         </div>
         <button id="generate-partition-btn" class="secondary-button">generate</button>
-        
+
+        <hr>
+
+        <label for="rows-input">preview</label>
+        <input type="text" id="rows-input" value="5 4 4 2" placeholder="e.g., 5 4 4 2" readonly>
+
         <hr>
 
         <label for="ai-select">computer player</label>
         <select id="ai-select">
-            <option value="B">player b (starts second)</option>
+            <option value="B">player b (plays second)</option>
             <option value="A">player a (starts first)</option>
             <option value="None">none (two human players)</option>
         </select>
 
-        <label for="difficulty-slider">ai difficulty: <span id="difficulty-label">medium</span></label>
+        <label for="difficulty-slider">AI difficulty: <span id="difficulty-label">medium</span></label>
         <div class="slider-container">
             <input type="range" id="difficulty-slider" min="1" max="3" value="2" step="1" class="difficulty-range">
         </div>

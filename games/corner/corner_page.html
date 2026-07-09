@@ -250,17 +250,7 @@
             [?]
           </button>
         </div>
-        <p>Enter the partition of the initial Young-diagram.</p>
-
-        <label for="rows-input">row lengths</label>
-        <input
-          type="text"
-          id="rows-input"
-          value="5 4 4 2"
-          placeholder="e.g., 5 4 4 2"
-        />
-
-        <hr />
+        <p>Choose a shape, then generate a board configuration.</p>
 
         <label for="partition-type-select">Shape</label>
         <select id="partition-type-select" class="partition-type-dropdown">
@@ -280,10 +270,20 @@
           </div>
         </div>
         <button id="generate-partition-btn" class="secondary-button">generate</button>
-        </div>
 
         <hr />
-        
+
+        <label for="rows-input">preview</label>
+        <input
+          type="text"
+          id="rows-input"
+          value="5 4 4 2"
+          placeholder="e.g., 5 4 4 2"
+          readonly
+        />
+
+        <hr />
+
         <label for="game-mode-select">game mode</label>
         <select id="game-mode-select">
           <option value="normal" selected>Normal (last move wins)</option>
@@ -298,13 +298,13 @@
 
         <label for="ai-select">computer player</label>
         <select id="ai-select">
-          <option value="B">Bob (Starts Second)</option>
+          <option value="B">Bob (Plays Second)</option>
           <option value="A">Alice (Starts First)</option>
           <option value="None">None (Two Human Players)</option>
         </select>
 
         <label for="difficulty-slider"
-          >ai difficulty: <span id="difficulty-label">medium</span></label
+          >AI difficulty: <span id="difficulty-label">medium</span></label
         >
         <div class="slider-container">
           <input

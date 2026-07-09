@@ -480,9 +480,6 @@
         return '<div id="ic-setup" class="modal-backdrop"><div class="modal">' +
             '<div class="modal-header"><h2>game setup</h2></div>' +
             '<p>The piece begins in the upper-left corner and moves right or down across the cells of a partition. The last legal move wins.</p>' +
-            '<label>Partition — row lengths (longest first)</label>' +
-            '<div class="input-group"><input type="text" id="ic-rows" value="6 5 4 3 2" placeholder="e.g. 6 5 4 3 2"></div>' +
-            '<label>…or generate one</label>' +
             '<label>Shape</label>' +
             '<select id="ic-gentype">' +
               '<option value="staircase">staircase</option>' +
@@ -496,6 +493,8 @@
                 '<input type="number" id="ic-gencols" min="1" value="6"></div>' +
             '</div>' +
             '<button type="button" id="ic-genbtn" class="secondary-button">generate</button>' +
+            '<label>Preview</label>' +
+            '<div class="input-group"><input type="text" id="ic-rows" value="6 5 4 3 2" placeholder="e.g. 6 5 4 3 2" readonly></div>' +
             '<label>Mode</label>' +
             '<div class="input-group"><select id="ic-mode"><option value="normal" selected>Normal (last move wins)</option>' +
               '<option value="misere">Misère (last move loses)</option></select></div>' +
